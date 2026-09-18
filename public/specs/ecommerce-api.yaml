@@ -1,0 +1,355 @@
+openapi: 3.0.3
+info:
+  title: E-Commerce Store Operations API
+  description: High-scale e-commerce order management, shipping tracking, and customer refund service.
+  version: 1.4.0
+servers:
+  - url: http://localhost:3000/api/mock
+    description: Capability Forge Local Mock Engine
+paths:
+  /customers/{id}:
+    get:
+      summary: Get Customer Details
+      operationId: get_customer
+      tags: [Customers]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "cust_ananya_99"
+      responses:
+        '200':
+          description: Customer profile retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+
+  /customers:
+    get:
+      summary: List Customers
+      operationId: list_customers
+      tags: [Customers]
+      responses:
+        '200':
+          description: List of active customers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+
+  /orders/{id}:
+    get:
+      summary: Get Order by ID
+      operationId: get_order
+      tags: [Orders]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "4821"
+      responses:
+        '200':
+          description: Order details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+
+  /orders:
+    get:
+      summary: List Recent Orders
+      operationId: list_orders
+      tags: [Orders]
+      responses:
+        '200':
+          description: Recent order list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+
+  /orders/{id}/items:
+    get:
+      summary: Get Items in Order
+      operationId: get_order_items
+      tags: [Orders]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "4821"
+      responses:
+        '200':
+          description: Item list for order
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderItem'
+
+  /orders/{id}/cancel:
+    post:
+      summary: Cancel an Order
+      operationId: cancel_order
+      tags: [Orders]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "4821"
+      responses:
+        '200':
+          description: Order cancelled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order_id:
+                    type: string
+                  status:
+                    type: string
+                    example: "CANCELLED"
+
+  /orders/{id}:
+    delete:
+      summary: Purge/Delete Order Record
+      operationId: delete_order
+      tags: [Orders]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order purged permanently
+
+  /shipping/{orderId}:
+    get:
+      summary: Get Shipping & Tracking Status
+      operationId: get_shipping
+      tags: [Shipping]
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "4821"
+      responses:
+        '200':
+          description: Real-time shipment status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shipping'
+
+  /products/{id}:
+    get:
+      summary: Get Product Details
+      operationId: get_product
+      tags: [Products]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "prod_audio_01"
+      responses:
+        '200':
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+
+  /inventory/{productId}:
+    get:
+      summary: Check Product Inventory Stock
+      operationId: get_inventory
+      tags: [Inventory]
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "prod_audio_01"
+      responses:
+        '200':
+          description: Stock levels across warehouses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inventory'
+
+  /refund-policy:
+    get:
+      summary: Get Store Refund & Delay Policies
+      operationId: get_refund_policy
+      tags: [Refund Policies]
+      responses:
+        '200':
+          description: Official policy terms
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundPolicy'
+
+  /refund:
+    post:
+      summary: Create Customer Refund
+      operationId: create_refund
+      tags: [Refunds]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [order_id, amount, reason]
+              properties:
+                order_id:
+                  type: string
+                  example: "4821"
+                amount:
+                  type: number
+                  example: 129.99
+                reason:
+                  type: string
+                  example: "Exceeded delivery delay threshold"
+      responses:
+        '201':
+          description: Refund transaction generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundConfirmation'
+
+components:
+  schemas:
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        tier:
+          type: string
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        customer_id:
+          type: string
+        customer_name:
+          type: string
+        order_date:
+          type: string
+        status:
+          type: string
+        total_amount:
+          type: number
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+    OrderItem:
+      type: object
+      properties:
+        product_id:
+          type: string
+        product_name:
+          type: string
+        quantity:
+          type: integer
+        price:
+          type: number
+    Shipping:
+      type: object
+      properties:
+        order_id:
+          type: string
+        carrier:
+          type: string
+        tracking_number:
+          type: string
+        status:
+          type: string
+        expected_delivery:
+          type: string
+        last_checkpoint:
+          type: string
+        days_delayed:
+          type: integer
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        sku:
+          type: string
+        price:
+          type: number
+    Inventory:
+      type: object
+      properties:
+        product_id:
+          type: string
+        in_stock:
+          type: boolean
+        available_quantity:
+          type: integer
+        warehouse_location:
+          type: string
+    RefundPolicy:
+      type: object
+      properties:
+        policy_id:
+          type: string
+        max_delay_threshold_days:
+          type: integer
+        eligible_conditions:
+          type: array
+          items:
+            type: string
+        auto_approval_limit:
+          type: number
+        human_approval_required_for_financial:
+          type: boolean
+    RefundConfirmation:
+      type: object
+      properties:
+        refund_id:
+          type: string
+        order_id:
+          type: string
+        amount:
+          type: number
+        status:
+          type: string
+        processed_at:
+          type: string

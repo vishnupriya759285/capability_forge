@@ -1,0 +1,112 @@
+openapi: 3.0.3
+info:
+  title: Swagger Petstore - Universal OpenAPI Demo
+  description: Standard real-world OpenAPI specification for pet inventory, store orders, and customer management.
+  version: 1.0.17
+servers:
+  - url: https://petstore.swagger.io/v2
+    description: Public Swagger Petstore Sandbox
+paths:
+  /pet/{petId}:
+    get:
+      summary: Find pet by ID
+      operationId: getPetById
+      tags: [Pets]
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '200':
+          description: successful operation
+    delete:
+      summary: Deletes a pet record
+      operationId: deletePet
+      tags: [Pets]
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Pet deleted
+
+  /pet/findByStatus:
+    get:
+      summary: Finds Pets by status
+      operationId: findPetsByStatus
+      tags: [Pets]
+      parameters:
+        - name: status
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [available, pending, sold]
+      responses:
+        '200':
+          description: list of pets matching status
+
+  /store/order:
+    post:
+      summary: Place an order for a pet
+      operationId: placeOrder
+      tags: [Store]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [petId, quantity]
+              properties:
+                petId:
+                  type: integer
+                quantity:
+                  type: integer
+      responses:
+        '200':
+          description: order placed successfully
+
+  /store/order/{orderId}:
+    get:
+      summary: Find purchase order by ID
+      operationId: getOrderById
+      tags: [Store]
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: order details
+    delete:
+      summary: Delete purchase order by ID
+      operationId: deleteOrder
+      tags: [Store]
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: order deleted
+
+  /store/inventory:
+    get:
+      summary: Returns pet inventories by status
+      operationId: getInventory
+      tags: [Store]
+      responses:
+        '200':
+          description: status counts

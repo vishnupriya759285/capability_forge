@@ -1,0 +1,99 @@
+openapi: 3.0.3
+info:
+  title: Stripe Billing & Payment Operations API
+  description: Real-world financial technology API specification for customer subscriptions, invoices, and charge authorizations.
+  version: 2024-06-20
+servers:
+  - url: https://api.stripe.com/v1
+    description: Stripe Sandbox Gateway
+paths:
+  /customers:
+    get:
+      summary: List Customers
+      operationId: list_customers
+      tags: [Customers]
+      responses:
+        '200':
+          description: List of customer objects
+    post:
+      summary: Create Customer
+      operationId: create_customer
+      tags: [Customers]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                name:
+                  type: string
+      responses:
+        '200':
+          description: Customer created
+
+  /customers/{customer_id}:
+    get:
+      summary: Retrieve a Customer
+      operationId: get_customer
+      tags: [Customers]
+      parameters:
+        - name: customer_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Customer retrieved
+
+  /invoices:
+    get:
+      summary: List Invoices
+      operationId: list_invoices
+      tags: [Invoices]
+      parameters:
+        - name: customer
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Invoices list
+    post:
+      summary: Create Draft Invoice
+      operationId: create_invoice
+      tags: [Invoices]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customer]
+              properties:
+                customer:
+                  type: string
+                auto_advance:
+                  type: boolean
+      responses:
+        '200':
+          description: Invoice created
+
+  /invoices/{invoice_id}/pay:
+    post:
+      summary: Pay an Invoice (Financial Mutation)
+      operationId: pay_invoice
+      tags: [Invoices]
+      parameters:
+        - name: invoice_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Invoice paid and closed
