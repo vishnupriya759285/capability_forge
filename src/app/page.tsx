@@ -111,13 +111,26 @@ export default function Home() {
     await handleRunEvaluations();
   };
 
+  const handleClearApi = async () => {
+    try {
+      await fetch('/api/analyze', { method: 'DELETE' });
+    } catch (e) {
+      console.error('Error clearing API:', e);
+    }
+    setAnalysisData(null);
+    setCurrentProjectName('No API Connected');
+    setCapabilities([]);
+    setSelectedCapabilityId('');
+    setEvaluationReport(null);
+  };
+
   const handleResetAll = async () => {
+    await handleClearApi();
     await fetch('/api/chaos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'repair' }),
     });
-    await loadInitialData();
     setActiveTab('overview');
   };
 
@@ -140,6 +153,7 @@ export default function Home() {
         <Header
           onImportApi={() => setIsImportModalOpen(true)}
           onRunConsole={() => setActiveTab('agent-console')}
+          onClearApi={handleClearApi}
           isBroken={isBroken}
           currentProject={currentProjectName}
         />
@@ -168,6 +182,7 @@ export default function Home() {
                 setActiveTab('capabilities');
               }}
               onNavigate={setActiveTab}
+              onClearApi={handleClearApi}
               onLoadCustomSpec={async (data) => {
                 setAnalysisData(data);
                 if (data.title) setCurrentProjectName(data.title);

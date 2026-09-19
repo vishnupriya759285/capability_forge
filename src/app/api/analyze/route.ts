@@ -97,3 +97,24 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE() {
+  try {
+    capabilityStore.clear();
+    return NextResponse.json({
+      title: 'No API Connected',
+      version: '0.0.0',
+      description: 'Upload an OpenAPI 3.x or Swagger 2.0 specification to get started.',
+      endpointCount: 0,
+      resourceCount: 0,
+      methodCounts: { GET: 0, POST: 0, PUT: 0, PATCH: 0, DELETE: 0 },
+      resources: [],
+      endpoints: [],
+      relationships: [],
+      potentialCapabilities: [],
+    });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+

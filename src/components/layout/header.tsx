@@ -1,11 +1,12 @@
 'use client';
 
 import React from 'react';
-import { Play, Plus, Terminal } from 'lucide-react';
+import { Play, Plus, Terminal, X } from 'lucide-react';
 
 interface HeaderProps {
   onImportApi?: () => void;
   onRunConsole?: () => void;
+  onClearApi?: () => void;
   isBroken?: boolean;
   currentProject?: string;
 }
@@ -13,6 +14,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   onImportApi,
   onRunConsole,
+  onClearApi,
   isBroken = false,
   currentProject = 'No API Connected',
 }) => {
@@ -41,6 +43,16 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#DCFCE7] text-[#14532D] border border-green-200">
               ● Live API
             </span>
+          )}
+          {!isNoApi && onClearApi && (
+            <button
+              type="button"
+              onClick={onClearApi}
+              title="Unload current API"
+              className="ml-1 p-0.5 rounded hover:bg-zinc-200 text-zinc-500 hover:text-red-700 transition-colors cursor-pointer"
+            >
+              <X className="w-3 h-3" />
+            </button>
           )}
         </div>
       </div>

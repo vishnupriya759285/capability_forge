@@ -21,6 +21,7 @@ interface ApiAnalysisViewProps {
   onCompile: () => void;
   onNavigate: (tab: NavTab) => void;
   onLoadCustomSpec?: (data: ApiAnalysisResult) => void;
+  onClearApi?: () => void;
 }
 
 export const ApiAnalysisView: React.FC<ApiAnalysisViewProps> = ({
@@ -28,6 +29,7 @@ export const ApiAnalysisView: React.FC<ApiAnalysisViewProps> = ({
   onCompile,
   onNavigate,
   onLoadCustomSpec,
+  onClearApi,
 }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -42,6 +44,24 @@ export const ApiAnalysisView: React.FC<ApiAnalysisViewProps> = ({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const [currentResult, setCurrentResult] = useState<ApiAnalysisResult | null>(analysisData);
+
+  React.useEffect(() => {
+    setCurrentResult(analysisData);
+    if (!analysisData || analysisData.endpointCount === 0) {
+      setSelectedFileName('');
+      setRawSpecContent('');
+    }
+  }, [analysisData]);
+
+  const handleClear = () => {
+    setSelectedFileName('');
+    setRemoteUrl('');
+    setRawSpecContent('');
+    setCurrentResult(null);
+    setSuccessMessage(null);
+    setErrorMessage(null);
+    onClearApi?.();
+  };
 
   const analysisSteps = [
     'Parsing specification',
@@ -218,16 +238,25 @@ export const ApiAnalysisView: React.FC<ApiAnalysisViewProps> = ({
         </div>
 
         <div className="flex items-center space-x-3">
+          {displayData && displayData.endpointCount > 0 && onClearApi && (
+            <button
+              onClick={handleClear}
+              className="px-3 py-2 text-xs font-semibold bg-white border border-red-200 text-red-700 hover:bg-red-50 rounded-md transition-colors shadow-2xs"
+            >
+              Unload API
+            </button>
+          )}
           <button
             onClick={() => runAnalysisSteps()}
-            disabled={analyzing}
-            className="px-4 py-2 text-xs font-semibold bg-white border border-[#E2E8E2] rounded-md text-[#172018] hover:bg-[#F7F8F5] transition-colors"
+            disabled={analyzing || !displayData || displayData.endpointCount === 0}
+            className="px-4 py-2 text-xs font-semibold bg-white border border-[#E2E8E2] rounded-md text-[#172018] hover:bg-[#F7F8F5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {analyzing ? 'Analyzing Spec...' : 'Re-Analyze API'}
           </button>
           <button
             onClick={onCompile}
-            className="px-4 py-2 text-xs font-semibold bg-[#14532D] text-white rounded-md hover:bg-[#0f3e22] shadow-sm flex items-center space-x-1.5 transition-all"
+            disabled={!displayData || displayData.endpointCount === 0}
+            className="px-4 py-2 text-xs font-semibold bg-[#14532D] text-white rounded-md hover:bg-[#0f3e22] shadow-sm flex items-center space-x-1.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Boxes className="w-3.5 h-3.5 text-[#DCFCE7]" />
             <span>Compile Capabilities</span>
@@ -416,8 +445,10 @@ export const ApiAnalysisView: React.FC<ApiAnalysisViewProps> = ({
         </div>
       </div>
 
-      {/* Analysis Stepper */}
-      <div className="bg-white p-5 rounded-lg border border-[#E2E8E2] shadow-sm space-y-3">
+      {displayData && displayData.endpointCount > 0 ? (
+        <>
+          {/* Analysis Stepper */}
+          <div className="bg-white p-5 rounded-lg border border-[#E2E8E2] shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <div className="text-xs font-bold uppercase tracking-wider text-[#667066]">
             Analysis Pipeline: {displayData?.title || 'Awaiting API Specification'}
@@ -689,6 +720,18 @@ export const ApiAnalysisView: React.FC<ApiAnalysisViewProps> = ({
           )}
         </div>
       </div>
+    </>
+  ) : (
+    <div className="p-16 text-center bg-white rounded-lg border border-[#E2E8E2] shadow-sm space-y-4 max-w-xl mx-auto my-8">
+      <div className="w-12 h-12 rounded-full bg-[#DCFCE7] text-[#14532D] flex items-center justify-center mx-auto shadow-sm">
+        <FileCode2 className="w-6 h-6" />
+      </div>
+      <h2 className="text-base font-bold text-[#172018]">No API Specification Connected</h2>
+      <p className="text-xs text-[#667066] leading-relaxed">
+        Choose an OpenAPI file from your computer or enter a public specification URL above. Capability Forge will automatically parse endpoints, map resource relationships, and synthesize task capabilities.
+      </p>
     </div>
+  )}
+</div>
   );
 };
