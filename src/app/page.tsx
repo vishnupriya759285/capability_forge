@@ -11,12 +11,14 @@ import { AgentConsoleView } from '../components/views/agent-console-view';
 import { EvaluationsView } from '../components/views/evaluations-view';
 import { RepairCenterView } from '../components/views/repair-center-view';
 import { SettingsView } from '../components/views/settings-view';
+import { ImportApiModal } from '../components/modals/import-api-modal';
 import { ApiAnalysisResult, Capability, EvaluationReport } from '../lib/types';
 import { CapabilityCompiler } from '../lib/engine/capability-compiler';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<NavTab>('overview');
   const [isBroken, setIsBroken] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [selectedCapabilityId, setSelectedCapabilityId] = useState('');
   const [currentProjectName, setCurrentProjectName] = useState('No API Connected');
 
@@ -136,7 +138,7 @@ export default function Home() {
       {/* Main App Content */}
       <div className="flex-1 flex flex-col min-w-0">
         <Header
-          onImportApi={() => setActiveTab('api-analysis')}
+          onImportApi={() => setIsImportModalOpen(true)}
           onRunConsole={() => setActiveTab('agent-console')}
           isBroken={isBroken}
           currentProject={currentProjectName}
@@ -169,7 +171,7 @@ export default function Home() {
               onLoadCustomSpec={async (data) => {
                 setAnalysisData(data);
                 if (data.title) setCurrentProjectName(data.title);
-                const compileRes = await fetch('/api/compile');
+                const compileRes = await fetch('/api/compile', { method: 'POST' });
                 if (compileRes.ok) {
                   const cdata = await compileRes.json();
                   const newCaps = Array.isArray(cdata) ? cdata : (cdata.capabilities || []);
@@ -226,6 +228,19 @@ export default function Home() {
           )}
         </main>
       </div>
+
+      {/* Global Import API Modal */}
+      <ImportApiModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImportComplete={(analysis, newCaps) => {
+          setAnalysisData(analysis);
+          if (analysis.title) setCurrentProjectName(analysis.title);
+          setCapabilities(newCaps);
+          if (newCaps.length > 0) setSelectedCapabilityId(newCaps[0].id);
+          setActiveTab('capabilities');
+        }}
+      />
     </div>
   );
 }

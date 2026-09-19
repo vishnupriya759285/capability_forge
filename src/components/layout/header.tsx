@@ -48,8 +48,9 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Right Action Tools */}
       <div className="flex items-center space-x-3">
         <button
+          type="button"
           onClick={onImportApi}
-          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-semibold border border-[#E2E8E2] bg-white text-[#172018] hover:bg-[#F7F8F5] transition-colors shadow-xs"
+          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-semibold border border-[#E2E8E2] bg-white text-[#172018] hover:bg-[#F7F8F5] active:scale-95 transition-all shadow-xs cursor-pointer"
         >
           <Plus className="w-3.5 h-3.5 text-[#14532D]" />
           <span>Import API</span>
