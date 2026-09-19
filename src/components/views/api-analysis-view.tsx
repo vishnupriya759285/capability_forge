@@ -359,6 +359,32 @@ export const ApiAnalysisView: React.FC<ApiAnalysisViewProps> = ({
                   </button>
                 </div>
               </div>
+
+              <div className="flex items-center space-x-2 text-[11px] text-[#667066]">
+                <span>Quick try:</span>
+                <button
+                  type="button"
+                  onClick={() => setRemoteUrl('https://raw.githubusercontent.com/openai/openai-openapi/master/openapi.json')}
+                  className="px-2 py-0.5 rounded bg-[#F7F8F5] border border-[#E2E8E2] hover:bg-[#DCFCE7] hover:text-[#14532D] hover:border-green-300 font-mono text-[10px] transition-colors"
+                >
+                  OpenAI API (JSON)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRemoteUrl('https://raw.githubusercontent.com/openai/openai-openapi/master/openapi.yaml')}
+                  className="px-2 py-0.5 rounded bg-[#F7F8F5] border border-[#E2E8E2] hover:bg-[#DCFCE7] hover:text-[#14532D] hover:border-green-300 font-mono text-[10px] transition-colors"
+                >
+                  OpenAI API (YAML)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRemoteUrl('https://petstore.swagger.io/v2/swagger.json')}
+                  className="px-2 py-0.5 rounded bg-[#F7F8F5] border border-[#E2E8E2] hover:bg-[#DCFCE7] hover:text-[#14532D] hover:border-green-300 font-mono text-[10px] transition-colors"
+                >
+                  Petstore
+                </button>
+              </div>
+
               <p className="text-[11px] text-[#667066]">
                 Fetches and parses live JSON or YAML specification directly from your remote API server.
               </p>

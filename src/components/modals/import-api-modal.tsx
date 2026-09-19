@@ -335,6 +335,30 @@ export const ImportApiModal: React.FC<ImportApiModalProps> = ({
                     className="w-full pl-9 pr-3 py-2 text-xs font-mono bg-white border border-[#E2E8E2] rounded-md focus:outline-none focus:ring-1 focus:ring-[#14532D]"
                   />
                 </div>
+                <div className="flex items-center space-x-2 mt-2 text-[11px] text-[#667066]">
+                  <span>Quick try:</span>
+                  <button
+                    type="button"
+                    onClick={() => setRemoteUrl('https://raw.githubusercontent.com/openai/openai-openapi/master/openapi.json')}
+                    className="px-2 py-0.5 rounded bg-[#FAFBF9] border border-[#E2E8E2] hover:bg-[#DCFCE7] hover:text-[#14532D] hover:border-green-300 font-mono text-[10px] transition-colors"
+                  >
+                    OpenAI API (JSON)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRemoteUrl('https://raw.githubusercontent.com/openai/openai-openapi/master/openapi.yaml')}
+                    className="px-2 py-0.5 rounded bg-[#FAFBF9] border border-[#E2E8E2] hover:bg-[#DCFCE7] hover:text-[#14532D] hover:border-green-300 font-mono text-[10px] transition-colors"
+                  >
+                    OpenAI API (YAML)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRemoteUrl('https://petstore.swagger.io/v2/swagger.json')}
+                    className="px-2 py-0.5 rounded bg-[#FAFBF9] border border-[#E2E8E2] hover:bg-[#DCFCE7] hover:text-[#14532D] hover:border-green-300 font-mono text-[10px] transition-colors"
+                  >
+                    Petstore
+                  </button>
+                </div>
               </div>
 
               <div className="p-3 bg-[#FAFBF9] border border-[#E2E8E2] rounded-lg text-xs text-[#667066] space-y-1.5">

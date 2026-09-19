@@ -18,7 +18,27 @@ export class OpenApiAnalyzer {
       if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
         return JSON.parse(trimmed);
       }
-      return yaml.load(trimmed);
+
+      // First attempt direct load
+      try {
+        return yaml.load(trimmed);
+      } catch (firstErr) {
+        // Multi-stage sanitization for real-world OpenAPI YAML files (e.g. OpenAI's official openapi.yaml):
+        // 1. Fix unclosed/empty block scalars: 'example: |+' followed by empty line and non-indented key
+        let sanitized = trimmed.replace(
+          /example:\s*\|[+\-]?\s*\r?\n(\s*\r?\n)*(?=\s*[a-zA-Z0-9_\-]+:)/g,
+          'example: ""\r\n'
+        );
+        // 2. Fix general empty block scalar fields that lack indented content
+        sanitized = sanitized.replace(
+          /([a-zA-Z0-9_\-]+:\s*\|[+\-]?)\s*\r?\n(\s*\r?\n)*(?=\s*[a-zA-Z0-9_\-]+:)/g,
+          '$1 ""\r\n'
+        );
+        // 3. Convert any tabs to spaces
+        sanitized = sanitized.replace(/\t/g, '  ');
+
+        return yaml.load(sanitized);
+      }
     } catch (err: any) {
       throw new Error(`Unable to parse OpenAPI specification: ${err.message}`);
     }

@@ -34,6 +34,30 @@ export async function POST(request: NextRequest) {
       throw new Error('No specification provided. Please upload a YAML/JSON file or specify an OpenAPI URL.');
     }
 
+    let analysis;
+    try {
+      analysis = OpenApiAnalyzer.analyze(specContent);
+    } catch (parseErr: any) {
+      // Fallback: If remote spec was a .yaml file that had syntax errors, attempt fetching companion .json if exists
+      if (specUrl && /\.ya?ml$/i.test(specUrl)) {
+        try {
+          const jsonUrl = specUrl.replace(/\.ya?ml$/i, '.json');
+          const jsonRes = await fetch(jsonUrl);
+          if (jsonRes.ok) {
+            const jsonText = await jsonRes.text();
+            analysis = OpenApiAnalyzer.analyze(jsonText);
+            specContent = jsonText;
+          } else {
+            throw parseErr;
+          }
+        } catch {
+          throw parseErr;
+        }
+      } else {
+        throw parseErr;
+      }
+    }
+
     // Save into central dynamic store
     capabilityStore.setSpec(specContent);
 
@@ -41,7 +65,6 @@ export async function POST(request: NextRequest) {
       capabilityStore.setTargetBaseUrl(targetBaseUrl);
     }
 
-    const analysis = OpenApiAnalyzer.analyze(specContent);
     return NextResponse.json(analysis);
   } catch (error: any) {
     return NextResponse.json(
