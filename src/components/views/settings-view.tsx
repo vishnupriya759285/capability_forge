@@ -21,7 +21,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onResetAll,
   onNavigate,
 }) => {
-  const [apiKey, setApiKey] = useState('codex-local-dev-mock-key-7729');
+  const [apiKey, setApiKey] = useState('');
   const [saved, setSaved] = useState(false);
 
   const handleSave = () => {
@@ -122,6 +122,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 type="password"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
+                placeholder="Enter your API key (optional)"
                 className="mt-1 w-full px-3 py-2 bg-[#FAFBF9] border border-[#E2E8E2] rounded-md font-mono text-[#172018]"
               />
               <div className="text-[11px] text-[#667066] mt-1">
