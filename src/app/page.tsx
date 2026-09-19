@@ -90,9 +90,13 @@ export default function Home() {
     }
   };
 
-  const handleRunEvaluations = async () => {
+  const handleRunEvaluations = async (capabilityId?: string) => {
     try {
-      const res = await fetch('/api/evaluations', { method: 'POST' });
+      const res = await fetch('/api/evaluations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ capabilityId }),
+      });
       const report = await res.json();
       setEvaluationReport(report);
     } catch (e) {
@@ -203,8 +207,8 @@ export default function Home() {
               evaluationReport={evaluationReport}
               onRunEvaluations={handleRunEvaluations}
               isBroken={isBroken}
-              onToggleChaos={handleToggleChaos}
               onNavigate={setActiveTab}
+              capabilities={capabilities}
             />
           )}
 
@@ -213,6 +217,7 @@ export default function Home() {
               isBroken={isBroken}
               onRepairComplete={handleRepairComplete}
               onNavigate={setActiveTab}
+              capabilities={capabilities}
             />
           )}
 

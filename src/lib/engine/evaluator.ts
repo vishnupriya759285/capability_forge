@@ -13,8 +13,7 @@ export class CapabilityEvaluator {
     // Pick capability
     const capability =
       (capabilityId ? capabilityStore.getCapability(capabilityId) : null) ||
-      capabilityStore.getCapabilities()[0] ||
-      (capabilityId ? CapabilityCompiler.compile(capabilityId) : CapabilityCompiler.listCompiledCapabilities()[0]);
+      capabilityStore.getCapabilities()[0];
 
     if (!capability) {
       return {
