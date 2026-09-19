@@ -49,6 +49,52 @@ export const CapabilitiesView: React.FC<CapabilitiesViewProps> = ({
     return true;
   });
 
+  if (capabilities.length === 0) {
+    return (
+      <div className="p-8 max-w-7xl mx-auto space-y-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E2E8E2] pb-6">
+          <div>
+            <div className="flex items-center space-x-2">
+              <h1 className="text-2xl font-bold tracking-tight text-[#172018]">
+                Capabilities
+              </h1>
+              <span className="text-xs font-mono font-bold bg-zinc-100 text-zinc-600 px-2 py-0.5 rounded-full border border-zinc-200">
+                0 Total Compiled
+              </span>
+            </div>
+            <p className="text-sm text-[#667066] mt-0.5">
+              Task-level agent capabilities synthesized with deterministic logic, permissions, and contracts.
+            </p>
+          </div>
+          <button
+            onClick={() => onNavigate('api-analysis')}
+            className="px-4 py-2 text-xs font-bold bg-[#14532D] text-white rounded-md hover:bg-[#0f3e22] shadow-sm flex items-center space-x-1.5"
+          >
+            <Boxes className="w-3.5 h-3.5 text-[#DCFCE7]" />
+            <span>Import API & Synthesize</span>
+          </button>
+        </div>
+
+        <div className="p-16 text-center bg-white rounded-lg border border-[#E2E8E2] shadow-sm space-y-4 max-w-xl mx-auto my-12">
+          <div className="w-12 h-12 rounded-full bg-[#DCFCE7] text-[#14532D] flex items-center justify-center mx-auto shadow-sm">
+            <Boxes className="w-6 h-6" />
+          </div>
+          <h2 className="text-base font-bold text-[#172018]">No Capabilities Compiled Yet</h2>
+          <p className="text-xs text-[#667066] leading-relaxed">
+            Upload or paste an OpenAPI specification in API Analysis. Capability Forge will analyze your endpoint relationships, safety gates, and parameters to compile task-oriented capabilities.
+          </p>
+          <button
+            onClick={() => onNavigate('api-analysis')}
+            className="px-5 py-2.5 text-xs font-bold bg-[#14532D] text-white rounded-md hover:bg-[#0f3e22] shadow-sm inline-flex items-center space-x-2"
+          >
+            <span>Go to API Analysis</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
       {/* Header */}

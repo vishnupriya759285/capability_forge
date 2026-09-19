@@ -7,27 +7,33 @@ export async function GET(request: NextRequest) {
   const id = searchParams.get('id');
 
   if (id) {
-    const capability =
-      capabilityStore.getCapability(id) || CapabilityCompiler.compile(id);
+    const capability = capabilityStore.getCapability(id);
+    if (!capability) {
+      return NextResponse.json({ error: 'Capability not found' }, { status: 404 });
+    }
     return NextResponse.json(capability);
   }
 
   const list = capabilityStore.getCapabilities();
-  if (list.length > 0) {
-    return NextResponse.json(list);
-  }
-
-  return NextResponse.json(CapabilityCompiler.listCompiledCapabilities());
+  return NextResponse.json({ capabilities: list });
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const id = body.capabilityId || 'resolve_customer_order';
+    const body = await request.json().catch(() => ({}));
+    const id = body.capabilityId;
 
-    const capability =
-      capabilityStore.getCapability(id) || CapabilityCompiler.compile(id);
-    return NextResponse.json(capability);
+    if (id) {
+      const capability = capabilityStore.getCapability(id);
+      if (!capability) {
+        return NextResponse.json({ error: 'Capability not found' }, { status: 404 });
+      }
+      return NextResponse.json(capability);
+    }
+
+    capabilityStore.autoCompileCapabilities();
+    const list = capabilityStore.getCapabilities();
+    return NextResponse.json({ capabilities: list });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 400 });
   }

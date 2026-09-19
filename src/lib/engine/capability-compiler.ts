@@ -634,19 +634,6 @@ export class CapabilityCompiler {
    * Return all compiled capabilities available in the platform
    */
   public static listCompiledCapabilities(): Capability[] {
-    const storeCaps = capabilityStore.getCapabilities();
-    if (storeCaps.length > 0) {
-      return storeCaps;
-    }
-
-    return [
-      this.compile('order_pet_safely'),
-      this.compile('triage_and_respond_issue'),
-      this.compile('process_invoice_payment'),
-      this.compile('track_shipment'),
-      this.compile('check_product_availability'),
-      this.compile('cancel_order'),
-      this.compile('check_refund_eligibility'),
-    ];
+    return capabilityStore.getCapabilities();
   }
 }

@@ -18,7 +18,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<NavTab>('overview');
   const [isBroken, setIsBroken] = useState(false);
   const [selectedCapabilityId, setSelectedCapabilityId] = useState('');
-  const [currentProjectName, setCurrentProjectName] = useState('OpenAPI Specification');
+  const [currentProjectName, setCurrentProjectName] = useState('No API Connected');
 
   const [capabilities, setCapabilities] = useState<Capability[]>([]);
   const [analysisData, setAnalysisData] = useState<ApiAnalysisResult | null>(null);
@@ -48,11 +48,15 @@ export default function Home() {
         setSelectedCapabilityId(caps[0].id);
       }
 
-      // 3. Fetch current evaluation report
-      const evalRes = await fetch('/api/evaluations');
-      if (evalRes.ok) {
-        const report = await evalRes.json();
-        setEvaluationReport(report);
+      // 3. Fetch current evaluation report if capabilities exist
+      if (caps.length > 0) {
+        const evalRes = await fetch('/api/evaluations');
+        if (evalRes.ok) {
+          const report = await evalRes.json();
+          setEvaluationReport(report);
+        }
+      } else {
+        setEvaluationReport(null);
       }
 
       // 4. Fetch chaos state
@@ -101,22 +105,6 @@ export default function Home() {
     await handleRunEvaluations();
   };
 
-  const handleLaunchDemo = async () => {
-    // 1. Make sure clean initial state
-    await fetch('/api/chaos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'repair' }),
-    });
-    setIsBroken(false);
-
-    // 2. Re-evaluate
-    await handleRunEvaluations();
-
-    // 3. Navigate straight to Agent Console for instant demonstration
-    setActiveTab('agent-console');
-  };
-
   const handleResetAll = async () => {
     await fetch('/api/chaos', {
       method: 'POST',
@@ -136,14 +124,17 @@ export default function Home() {
         isEngineConnected={true}
         isCodexConnected={true}
         brokenCount={isBroken ? 1 : 0}
+        capabilityCount={capabilities.length}
+        evalSummary={evaluationReport && evaluationReport.totalTests > 0 ? `${evaluationReport.passedTests}/${evaluationReport.totalTests} Passed` : undefined}
+        hasEvaluationsRun={Boolean(evaluationReport && evaluationReport.totalTests > 0)}
       />
 
       {/* Main App Content */}
       <div className="flex-1 flex flex-col min-w-0">
         <Header
-          onLaunchDemo={handleLaunchDemo}
+          onImportApi={() => setActiveTab('api-analysis')}
+          onRunConsole={() => setActiveTab('agent-console')}
           isBroken={isBroken}
-          onToggleChaos={handleToggleChaos}
           currentProject={currentProjectName}
         />
 
@@ -151,7 +142,6 @@ export default function Home() {
           {activeTab === 'overview' && (
             <OverviewView
               onNavigate={setActiveTab}
-              onLaunchDemo={handleLaunchDemo}
               isBroken={isBroken}
               analysisData={analysisData}
               capabilities={capabilities}
@@ -161,12 +151,27 @@ export default function Home() {
           {activeTab === 'api-analysis' && (
             <ApiAnalysisView
               analysisData={analysisData}
-              onCompile={() => setActiveTab('capabilities')}
+              onCompile={async () => {
+                const compileRes = await fetch('/api/compile', { method: 'POST' });
+                if (compileRes.ok) {
+                  const data = await compileRes.json();
+                  const newCaps = Array.isArray(data) ? data : (data.capabilities || []);
+                  setCapabilities(newCaps);
+                  if (newCaps.length > 0) setSelectedCapabilityId(newCaps[0].id);
+                }
+                setActiveTab('capabilities');
+              }}
               onNavigate={setActiveTab}
-              onLoadCustomSpec={(data) => {
+              onLoadCustomSpec={async (data) => {
                 setAnalysisData(data);
                 if (data.title) setCurrentProjectName(data.title);
-                setCapabilities(CapabilityCompiler.listCompiledCapabilities());
+                const compileRes = await fetch('/api/compile');
+                if (compileRes.ok) {
+                  const cdata = await compileRes.json();
+                  const newCaps = Array.isArray(cdata) ? cdata : (cdata.capabilities || []);
+                  setCapabilities(newCaps);
+                  if (newCaps.length > 0) setSelectedCapabilityId(newCaps[0].id);
+                }
               }}
             />
           )}

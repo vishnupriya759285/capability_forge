@@ -55,7 +55,7 @@ export const AgentConsoleView: React.FC<AgentConsoleViewProps> = ({
       const res = await fetch('/api/compile');
       if (res.ok) {
         const data = await res.json();
-        const caps = data.capabilities || [];
+        const caps: Capability[] = Array.isArray(data) ? data : (data.capabilities || []);
         setAvailableCaps(caps);
         if (caps.length > 0 && !selectedCapId) {
           selectCapability(caps[0]);
@@ -201,14 +201,19 @@ export const AgentConsoleView: React.FC<AgentConsoleViewProps> = ({
             </label>
             <select
               value={selectedCapId}
+              disabled={availableCaps.length === 0}
               onChange={(e) => handleSelectCapabilityId(e.target.value)}
-              className="px-3 py-2 text-xs font-mono font-bold bg-[#FAFBF9] border border-[#E2E8E2] rounded-md text-[#14532D] focus:outline-none focus:ring-1 focus:ring-[#14532D] min-w-[300px]"
+              className="px-3 py-2 text-xs font-mono font-bold bg-[#FAFBF9] border border-[#E2E8E2] rounded-md text-[#14532D] focus:outline-none focus:ring-1 focus:ring-[#14532D] min-w-[300px] disabled:opacity-50"
             >
-              {availableCaps.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name} ({c.endpoints.length} endpoints • {c.risk} Risk)
-                </option>
-              ))}
+              {availableCaps.length === 0 ? (
+                <option value="">No capabilities compiled yet</option>
+              ) : (
+                availableCaps.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} ({c.endpoints.length} endpoints • {c.risk} Risk)
+                  </option>
+                ))
+              )}
             </select>
           </div>
 
@@ -240,7 +245,7 @@ export const AgentConsoleView: React.FC<AgentConsoleViewProps> = ({
                 type="text"
                 value={targetBaseUrl}
                 onChange={(e) => setTargetBaseUrl(e.target.value)}
-                placeholder="e.g. https://petstore3.swagger.io/api/v3 or https://api.github.com"
+                placeholder="e.g. https://api.yourcompany.com/v1"
                 className="w-full px-3 py-2 bg-white border border-[#E2E8E2] rounded-md font-mono text-xs text-[#172018] focus:outline-none focus:ring-1 focus:ring-[#14532D]"
               />
               <p className="text-[11px] text-[#667066] mt-1">
@@ -263,6 +268,23 @@ export const AgentConsoleView: React.FC<AgentConsoleViewProps> = ({
                 Attached as the Authorization header on every request.
               </p>
             </div>
+          </div>
+        )}
+
+        {/* Empty state when no capabilities exist */}
+        {availableCaps.length === 0 && (
+          <div className="p-12 text-center bg-[#FAFBF9] rounded-lg border border-dashed border-[#CBD5CB] space-y-3">
+            <Terminal className="w-10 h-10 text-[#667066] mx-auto opacity-50" />
+            <div className="text-sm font-bold text-[#172018]">No Capabilities Available to Test</div>
+            <p className="text-xs text-[#667066] max-w-md mx-auto">
+              Import an OpenAPI specification to synthesize agent capabilities. Once compiled, you can test endpoints, payloads, and approval gates with live HTTP calls here.
+            </p>
+            <button
+              onClick={() => onNavigate('api-analysis')}
+              className="px-4 py-2 text-xs font-bold bg-[#14532D] text-white rounded-md hover:bg-[#0f3e22] shadow-sm"
+            >
+              Import OpenAPI Specification
+            </button>
           </div>
         )}
 

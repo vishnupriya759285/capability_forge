@@ -297,6 +297,22 @@ export const McpServerView: React.FC<McpServerViewProps> = ({ onNavigate }) => {
             </div>
           </div>
         )}
+
+        {!currentTool && (
+          <div className="lg:col-span-7 bg-white rounded-lg border border-[#E2E8E2] shadow-sm p-12 text-center space-y-3 flex flex-col items-center justify-center min-h-[360px]">
+            <Server className="w-10 h-10 text-[#667066] opacity-40" />
+            <div className="text-sm font-bold text-[#172018]">No Tool Selected</div>
+            <p className="text-xs text-[#667066] max-w-sm">
+              Connect your OpenAPI specification to synthesize capabilities and expose them as Model Context Protocol tools.
+            </p>
+            <button
+              onClick={() => onNavigate('api-analysis')}
+              className="px-4 py-2 text-xs font-bold bg-[#14532D] text-white rounded-md hover:bg-[#0f3e22] shadow-sm"
+            >
+              Import API Specification
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

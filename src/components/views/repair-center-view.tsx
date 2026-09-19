@@ -33,25 +33,12 @@ export const RepairCenterView: React.FC<RepairCenterViewProps> = ({
   onNavigate,
 }) => {
   const [repairing, setRepairing] = useState(false);
-  const [repairMode, setRepairMode] = useState<'LIVE_CODEX' | 'DEMO_REPLAY'>('DEMO_REPLAY');
+  const [repairMode] = useState<'LIVE_CODEX'>('LIVE_CODEX');
   const [repairSteps, setRepairSteps] = useState<CodexRepairProgressStep[]>([]);
   const [repairComplete, setRepairComplete] = useState(!isBroken);
   const [patchDiff, setPatchDiff] = useState<string | null>(null);
 
-  const [history, setHistory] = useState<RepairHistoryItem[]>([
-    {
-      id: 'rep_hist_01',
-      timestamp: '2026-09-18 10:15:22',
-      capabilityId: 'mutation_capability',
-      capabilityName: 'order_pet_safely',
-      failureReason: 'Missing parameter sanitization on path variables',
-      filesChanged: ['src/lib/engine/workflow-executor.ts'],
-      testsBefore: '8/9',
-      testsAfter: '9/9',
-      status: 'VERIFIED',
-      diff: `@@ -42,3 +42,3 @@\n- const path = endpoint.path.replace('{id}', inputs.id);\n+ const path = endpoint.path.replace(new RegExp('{id}', 'gi'), encodeURIComponent(inputs.id));`,
-    },
-  ]);
+  const [history, setHistory] = useState<RepairHistoryItem[]>([]);
 
   const handleFixWithCodex = async () => {
     setRepairing(true);
@@ -140,29 +127,10 @@ export const RepairCenterView: React.FC<RepairCenterViewProps> = ({
           </p>
         </div>
 
-        {/* Mode Selector */}
-        <div className="flex items-center space-x-2 bg-white p-1 rounded-lg border border-[#E2E8E2] text-xs">
-          <span className="text-[#667066] px-2 font-medium">Mode:</span>
-          <button
-            onClick={() => setRepairMode('LIVE_CODEX')}
-            className={`px-2.5 py-1 rounded font-medium transition-colors ${
-              repairMode === 'LIVE_CODEX'
-                ? 'bg-[#14532D] text-white shadow-sm'
-                : 'text-[#667066] hover:text-[#172018]'
-            }`}
-          >
-            Live Codex Agent
-          </button>
-          <button
-            onClick={() => setRepairMode('DEMO_REPLAY')}
-            className={`px-2.5 py-1 rounded font-medium transition-colors ${
-              repairMode === 'DEMO_REPLAY'
-                ? 'bg-[#14532D] text-white shadow-sm'
-                : 'text-[#667066] hover:text-[#172018]'
-            }`}
-          >
-            Demo Repair Replay
-          </button>
+        {/* Mode Indicator */}
+        <div className="flex items-center space-x-2 bg-white px-3 py-1.5 rounded-lg border border-[#E2E8E2] text-xs">
+          <Sparkles className="w-3.5 h-3.5 text-[#14532D]" />
+          <span className="font-semibold text-[#172018]">Live Codex Agent Runtime</span>
         </div>
       </div>
 
@@ -228,8 +196,7 @@ export const RepairCenterView: React.FC<RepairCenterViewProps> = ({
           {/* Mode notice */}
           <div className="text-[11px] text-[#667066] flex items-center justify-between pt-1">
             <span>
-              Codex integration mode:{' '}
-              <strong>{repairMode === 'DEMO_REPLAY' ? 'Demo repair replay' : 'Live Codex Agent'}</strong>
+              Codex integration mode: <strong>Live Codex Agent</strong>
             </span>
             <span className="font-mono text-xs text-[#14532D]">
               Affected File: src/lib/engine/workflow-executor.ts
@@ -280,11 +247,6 @@ export const RepairCenterView: React.FC<RepairCenterViewProps> = ({
                 Codex Repair Progress
               </span>
             </div>
-            {repairMode === 'DEMO_REPLAY' && (
-              <span className="text-[10px] font-mono text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded font-semibold">
-                Demo repair replay
-              </span>
-            )}
           </div>
 
           <div className="space-y-3">
@@ -386,42 +348,48 @@ index 4b91a24..9f2910c 100644
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-[#E2E8E2] text-[#667066] bg-[#FAFBF9]">
-                <th className="py-2.5 px-3">Timestamp</th>
-                <th className="py-2.5 px-3">Capability</th>
-                <th className="py-2.5 px-3">Failure Reason</th>
-                <th className="py-2.5 px-3">Files Changed</th>
-                <th className="py-2.5 px-3">Score Before/After</th>
-                <th className="py-2.5 px-3 text-right">Result</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#E2E8E2]">
-              {history.map((h) => (
-                <tr key={h.id} className="hover:bg-[#F7F8F5]">
-                  <td className="py-3 px-3 font-mono text-[#667066]">{h.timestamp}</td>
-                  <td className="py-3 px-3 font-mono font-bold text-[#14532D]">
-                    {h.capabilityName}
-                  </td>
-                  <td className="py-3 px-3 text-[#172018]">{h.failureReason}</td>
-                  <td className="py-3 px-3 font-mono text-[#667066]">
-                    {h.filesChanged.join(', ')}
-                  </td>
-                  <td className="py-3 px-3 font-mono">
-                    <span className="text-red-600 font-bold">{h.testsBefore}</span>
-                    <span className="mx-1 text-[#9AA59A]">→</span>
-                    <span className="text-[#16A34A] font-bold">{h.testsAfter}</span>
-                  </td>
-                  <td className="py-3 px-3 text-right">
-                    <span className="bg-[#DCFCE7] text-[#14532D] font-bold text-[10px] px-2 py-0.5 rounded">
-                      ● {h.status}
-                    </span>
-                  </td>
+          {history.length === 0 ? (
+            <div className="p-8 text-center text-xs text-[#667066] italic bg-[#FAFBF9] rounded-lg border border-dashed border-[#E2E8E2]">
+              No previous repair sessions recorded. Run evaluations or trigger live AI repair when a capability test fails.
+            </div>
+          ) : (
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-[#E2E8E2] text-[#667066] bg-[#FAFBF9]">
+                  <th className="py-2.5 px-3">Timestamp</th>
+                  <th className="py-2.5 px-3">Capability</th>
+                  <th className="py-2.5 px-3">Failure Reason</th>
+                  <th className="py-2.5 px-3">Files Changed</th>
+                  <th className="py-2.5 px-3">Score Before/After</th>
+                  <th className="py-2.5 px-3 text-right">Result</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-[#E2E8E2]">
+                {history.map((h) => (
+                  <tr key={h.id} className="hover:bg-[#F7F8F5]">
+                    <td className="py-3 px-3 font-mono text-[#667066]">{h.timestamp}</td>
+                    <td className="py-3 px-3 font-mono font-bold text-[#14532D]">
+                      {h.capabilityName}
+                    </td>
+                    <td className="py-3 px-3 text-[#172018]">{h.failureReason}</td>
+                    <td className="py-3 px-3 font-mono text-[#667066]">
+                      {h.filesChanged.join(', ')}
+                    </td>
+                    <td className="py-3 px-3 font-mono">
+                      <span className="text-red-600 font-bold">{h.testsBefore}</span>
+                      <span className="mx-1 text-[#9AA59A]">→</span>
+                      <span className="text-[#16A34A] font-bold">{h.testsAfter}</span>
+                    </td>
+                    <td className="py-3 px-3 text-right">
+                      <span className="bg-[#DCFCE7] text-[#14532D] font-bold text-[10px] px-2 py-0.5 rounded">
+                        ● {h.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>

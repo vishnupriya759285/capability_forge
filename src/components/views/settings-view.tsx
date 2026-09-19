@@ -37,37 +37,37 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           Platform Settings
         </h1>
         <p className="text-sm text-[#667066] mt-0.5">
-          Configure local engine transports, Codex integration keys, and demo resets.
+          Configure live engine transports, OpenAPI base URLs, and Codex integration keys.
         </p>
       </div>
 
       <div className="space-y-6">
-        {/* Local Mock Engine Config */}
+        {/* Live Execution Gateway */}
         <div className="bg-white rounded-lg border border-[#E2E8E2] shadow-sm p-6 space-y-4">
           <div className="flex items-center space-x-2 border-b border-[#E2E8E2] pb-3">
             <Server className="w-4 h-4 text-[#14532D]" />
             <h2 className="text-sm font-bold uppercase tracking-wider text-[#172018]">
-              Local Mock API Engine
+              Live HTTP Execution Engine
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
             <div>
-              <label className="text-[#667066] font-medium">Mock Gateway URL</label>
+              <label className="text-[#667066] font-medium">HTTP Agent Dispatch</label>
               <input
                 type="text"
                 readOnly
-                value="http://localhost:3000/api/mock"
+                value="Direct Live HTTP fetch() with Header Propagation"
                 className="mt-1 w-full px-3 py-2 bg-[#FAFBF9] border border-[#E2E8E2] rounded-md font-mono text-[#172018]"
               />
             </div>
 
             <div>
-              <label className="text-[#667066] font-medium">Database Persistence</label>
+              <label className="text-[#667066] font-medium">Capability Store</label>
               <input
                 type="text"
                 readOnly
-                value="In-Memory Deterministic State (Zero External Dependencies)"
+                value="Centralized Dynamic Memory Store (Spec-driven)"
                 className="mt-1 w-full px-3 py-2 bg-[#FAFBF9] border border-[#E2E8E2] rounded-md font-sans text-[#172018]"
               />
             </div>
@@ -125,7 +125,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 className="mt-1 w-full px-3 py-2 bg-[#FAFBF9] border border-[#E2E8E2] rounded-md font-mono text-[#172018]"
               />
               <div className="text-[11px] text-[#667066] mt-1">
-                Deterministic demo repair replay is available out of the box without external tokens.
+                Automated diagnostics and patch synthesis are available out of the box with the local engine.
               </div>
             </div>
 

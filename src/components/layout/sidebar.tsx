@@ -30,6 +30,9 @@ interface SidebarProps {
   isEngineConnected?: boolean;
   isCodexConnected?: boolean;
   brokenCount?: number;
+  capabilityCount?: number;
+  evalSummary?: string;
+  hasEvaluationsRun?: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -38,18 +41,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isEngineConnected = true,
   isCodexConnected = true,
   brokenCount = 0,
+  capabilityCount = 0,
+  evalSummary,
+  hasEvaluationsRun = false,
 }) => {
   const navItems = [
     { id: 'overview' as NavTab, label: 'Overview', icon: LayoutDashboard },
     { id: 'api-analysis' as NavTab, label: 'API Analysis', icon: SearchCode },
-    { id: 'capabilities' as NavTab, label: 'Capabilities', icon: Boxes, badge: '9' },
+    {
+      id: 'capabilities' as NavTab,
+      label: 'Capabilities',
+      icon: Boxes,
+      badge: capabilityCount > 0 ? String(capabilityCount) : undefined,
+    },
     { id: 'mcp-server' as NavTab, label: 'MCP Server', icon: Server },
     { id: 'agent-console' as NavTab, label: 'Agent Console', icon: Terminal },
     {
       id: 'evaluations' as NavTab,
       label: 'Evaluations',
       icon: CheckCircle2,
-      badge: brokenCount > 0 ? '1 Failed' : '9/9 Passed',
+      badge: brokenCount > 0 ? '1 Failed' : hasEvaluationsRun && evalSummary ? evalSummary : undefined,
       badgeColor: brokenCount > 0 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700',
     },
     {

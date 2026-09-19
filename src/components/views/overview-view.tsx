@@ -21,7 +21,6 @@ import { ApiAnalysisResult, Capability } from '@/lib/types';
 
 interface OverviewViewProps {
   onNavigate: (tab: NavTab) => void;
-  onLaunchDemo: () => void;
   isBroken: boolean;
   analysisData?: ApiAnalysisResult | null;
   capabilities?: Capability[];
@@ -29,7 +28,6 @@ interface OverviewViewProps {
 
 export const OverviewView: React.FC<OverviewViewProps> = ({
   onNavigate,
-  onLaunchDemo,
   isBroken,
   analysisData,
   capabilities = [],
@@ -44,9 +42,10 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
     { label: 'Verify', desc: 'Certified safe for agents', icon: ShieldCheck },
   ];
 
-  const totalEndpoints = analysisData?.endpointCount ?? capabilities.reduce((acc, c) => acc + c.endpoints.length, 0);
-  const totalResources = analysisData?.resourceCount ?? 3;
+  const totalEndpoints = analysisData?.endpointCount ?? 0;
+  const totalResources = analysisData?.resourceCount ?? 0;
   const totalCapabilities = capabilities.length;
+  const isNoApi = !analysisData || analysisData.endpointCount === 0 || analysisData.title === 'No API Connected';
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8">
@@ -189,42 +188,61 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
-          {capabilities.slice(0, 6).map((cap) => (
-            <div
-              key={cap.id}
-              onClick={() => onNavigate('capabilities')}
-              className="p-4 bg-[#FAFBF9] hover:bg-[#F4F9F4] rounded-lg border border-[#E2E8E2] cursor-pointer transition-all space-y-2 flex flex-col justify-between"
-            >
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs font-bold text-[#14532D] truncate">
-                    {cap.name}
-                  </span>
-                  <span
-                    className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
-                      cap.risk === 'HIGH'
-                        ? 'bg-red-100 text-red-700'
-                        : cap.risk === 'MEDIUM'
-                        ? 'bg-amber-100 text-amber-800'
-                        : 'bg-green-100 text-green-800'
-                    }`}
-                  >
-                    {cap.risk} Risk
-                  </span>
-                </div>
-                <p className="text-xs text-[#667066] line-clamp-2">
-                  {cap.description}
-                </p>
-              </div>
-
-              <div className="pt-2 border-t border-[#E2E8E2] flex items-center justify-between text-[11px] text-[#667066]">
-                <span className="font-mono">{cap.endpoints.length} endpoints</span>
-                <span className="text-[#16A34A] font-semibold">● Ready</span>
-              </div>
+        {capabilities.length === 0 ? (
+          <div className="p-8 text-center bg-[#FAFBF9] rounded-lg border border-dashed border-[#CBD5CB] space-y-3">
+            <Boxes className="w-10 h-10 text-[#667066] mx-auto opacity-50" />
+            <div>
+              <h3 className="text-sm font-bold text-[#172018]">No Capabilities Compiled Yet</h3>
+              <p className="text-xs text-[#667066] mt-1 max-w-md mx-auto">
+                Connect your OpenAPI 3.x specification to automatically synthesize task-level capabilities for AI agents.
+              </p>
             </div>
-          ))}
-        </div>
+            <button
+              onClick={() => onNavigate('api-analysis')}
+              className="px-4 py-2 text-xs font-bold bg-[#14532D] text-white rounded-md hover:bg-[#0f3e22] shadow-sm inline-flex items-center space-x-1.5"
+            >
+              <FolderOpen className="w-3.5 h-3.5" />
+              <span>Import OpenAPI Specification</span>
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+            {capabilities.slice(0, 6).map((cap) => (
+              <div
+                key={cap.id}
+                onClick={() => onNavigate('capabilities')}
+                className="p-4 bg-[#FAFBF9] hover:bg-[#F4F9F4] rounded-lg border border-[#E2E8E2] cursor-pointer transition-all space-y-2 flex flex-col justify-between"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs font-bold text-[#14532D] truncate">
+                      {cap.name}
+                    </span>
+                    <span
+                      className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
+                        cap.risk === 'HIGH'
+                          ? 'bg-red-100 text-red-700'
+                          : cap.risk === 'MEDIUM'
+                          ? 'bg-amber-100 text-amber-800'
+                          : 'bg-green-100 text-green-800'
+                      }`}
+                    >
+                      {cap.risk} Risk
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#667066] line-clamp-2">
+                    {cap.description}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-[#E2E8E2] flex items-center justify-between text-[11px] text-[#667066]">
+                  <span className="font-mono">{cap.endpoints.length} endpoints</span>
+                  <span className="text-[#16A34A] font-semibold">● Ready</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
